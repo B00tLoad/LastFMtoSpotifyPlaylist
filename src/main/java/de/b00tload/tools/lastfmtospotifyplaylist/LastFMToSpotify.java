@@ -15,12 +15,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 
+import static de.b00tload.tools.lastfmtospotifyplaylist.util.Logger.logLn;
+
 public class LastFMToSpotify {
 
     public static final String LINE_SEPERATOR = System.getProperty("line.separator");
     public static HashMap<String, String> configuration;
 
     public static void main(String[] args) {
+        configuration = new HashMap<>();
         configuration.put("requests.useragent", "LastFMToSpotify/1.0-Snapshot (" + System.getProperty("os.name") + "; " + System.getProperty("os.arch") + ") Java/"+System.getProperty("java.version"));
         for(int a = 0; a<args.length; a++){
             Arguments arg;
@@ -43,6 +46,11 @@ public class LastFMToSpotify {
                 ArgumentHandler.handle(arg, args[a+1]);
             }
         }
+
+        logLn("Priority 0",0 );
+        logLn("Priority 1",1 );
+        logLn("Priority 2",2 );
+        logLn("Priority 3",3 );
 
         // Start Progress Bar
         try (ProgressBar pb = new ProgressBar("LastFM -> Spotify Playlist", 4)) {

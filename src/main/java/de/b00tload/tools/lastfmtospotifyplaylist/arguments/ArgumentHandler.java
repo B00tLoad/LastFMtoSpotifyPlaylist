@@ -53,7 +53,13 @@ public class ArgumentHandler {
     }
 
     private static void verbose(String value){
-        //wenn value != int
-        System.out.println("LogLevel must be a numeric value.");
+        try {
+            int loglevel = Integer.parseInt(value);
+            configuration.put("logging.level", String.valueOf(loglevel));
+        } catch (NumberFormatException e) {
+            System.out.println("LogLevel must be a numeric value.");
+            System.exit(500);
+        }
+
     }
 }

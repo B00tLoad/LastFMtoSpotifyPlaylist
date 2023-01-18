@@ -16,7 +16,14 @@ public enum Arguments {
                                         + "  - 2: Verbose    Will echo current step being worked on" + LINE_SEPERATOR
                                         + "  - 3: Debug      Will give specific information on what excactly the tool is doing",
             "--loglevel <level>", "log", "l"),
-    SECRET("spotifysecret", "[]", "--spotifysecret <secret>", "sS", "sSecret");
+    SECRET("spotifysecret", "[Required]" + LINE_SEPERATOR
+                                        + "Sets the spotify client secret.", "--spotifysecret <secret>", "sS", "sSecret"),
+    CLIENT("spotifyclient", "[Required]" + LINE_SEPERATOR
+                                        + "Sets the spotify cliend id.", "--spotifyclient <clientid>", "sC", "sClient"),
+    TOKEN("lastfmtoken", "[Required]" + LINE_SEPERATOR
+                                        + "Sets the LastFM API token.", "--lastfmtoken <apitoken>", "lT", "lToken"),
+    USER("lastfmuser", "[Required]" + LINE_SEPERATOR
+                                        + "Sets the LastFM API token.", "--lastfmuser <username>", "lU", "lUser");
 
     private final String name;
     private final String description;

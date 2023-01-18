@@ -47,10 +47,6 @@ public class LastFMToSpotify {
             }
         }
 
-        logLn("Priority 0",0 );
-        logLn("Priority 1",1 );
-        logLn("Priority 2",2 );
-        logLn("Priority 3",3 );
 
         // Start Progress Bar
         try (ProgressBar pb = new ProgressBar("LastFM -> Spotify Playlist", 4)) {
@@ -64,7 +60,7 @@ public class LastFMToSpotify {
                     case 2:
                         pb.setExtraMessage("Authenticating with LastFM...");
                         Caller.getInstance().setUserAgent(configuration.get("requests.useragent"));
-                        User.getInfo(configuration.get("lastfm.user"), configuration.get("lastfm.apikey")).getName();
+                        logLn(User.getInfo(configuration.get("lastfm.user"), configuration.get("lastfm.apikey")).getName(), 1);
                         break;
                     case 3:
                         pb.setExtraMessage("Reading from LastFM...");

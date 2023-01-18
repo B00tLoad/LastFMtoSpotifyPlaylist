@@ -6,7 +6,6 @@ import de.b00tload.tools.lastfmtospotifyplaylist.arguments.Arguments;
 import de.umass.lastfm.Caller;
 import de.umass.lastfm.Period;
 import de.umass.lastfm.User;
-import me.tongfei.progressbar.ProgressBar;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
@@ -23,8 +22,10 @@ public class LastFMToSpotify {
     public static HashMap<String, String> configuration;
 
     public static void main(String[] args) {
+        // create hash map with user agent
         configuration = new HashMap<>();
         configuration.put("requests.useragent", "LastFMToSpotify/1.0-Snapshot (" + System.getProperty("os.name") + "; " + System.getProperty("os.arch") + ") Java/"+System.getProperty("java.version"));
+        // parse arguments
         for(int a = 0; a<args.length; a++){
             Arguments arg;
             if(args[a].startsWith("--")){
@@ -32,7 +33,7 @@ public class LastFMToSpotify {
             } else if(args[a].startsWith("-")){
                 arg = Arguments.getByAlias(args[a].substring(1));
             } else {
-                break;
+                continue;
             }
             if(arg==null) {
                 ArgumentHandler.handle(Arguments.HELP);

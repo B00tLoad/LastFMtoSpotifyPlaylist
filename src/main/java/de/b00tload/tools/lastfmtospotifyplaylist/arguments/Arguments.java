@@ -23,7 +23,17 @@ public enum Arguments {
     TOKEN("lastfmtoken", "[Required]" + LINE_SEPERATOR
                                         + "Sets the LastFM API token.", "--lastfmtoken <apitoken>", "lT", "lToken"),
     USER("lastfmuser", "[Required]" + LINE_SEPERATOR
-                                        + "Sets the LastFM API token.", "--lastfmuser <username>", "lU", "lUser");
+                                        + "Sets the LastFM API token.", "--lastfmuser <username>", "lU", "lUser"),
+    WEEKLY("weekly", "[Optional]" + LINE_SEPERATOR
+                                        + "Creates a playlist from your top tracks from last week.", "--weekly", "W"),
+    MONTHLY("monthly", "[Optional, Default]" + LINE_SEPERATOR
+                                        + "Creates a playlist from your top tracks from last month.", "--monthly", "M"),
+    QUARTERLY("quarterly", "[Optional]" + LINE_SEPERATOR
+                                        + "Creates a playlist from your top tracks from last quarter.", "--quarterly", "Q"),
+    BIANNUALLY("biannually", "[Optional]" + LINE_SEPERATOR
+                                        + "Creates a playlist from your top tracks from last half-year.", "--biannualy", "B"),
+    YEARLY("yearly", "[Optional]" + LINE_SEPERATOR
+                                        + "Creates a playlist from your top tracks from last year.", "--anually", "A");;
 
     private final String name;
     private final String description;

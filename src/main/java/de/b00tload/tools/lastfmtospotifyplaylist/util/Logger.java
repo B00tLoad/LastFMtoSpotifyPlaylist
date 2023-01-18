@@ -5,7 +5,9 @@ import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.configur
 public class Logger {
 
     public static void logLn(String string, int priority){
-        if(Integer.parseInt(configuration.get("verbose.level")))
+        if(Integer.parseInt(configuration.get("logging.level"))>=priority){
+            System.out.println(string);
+        }
     }
 
 }

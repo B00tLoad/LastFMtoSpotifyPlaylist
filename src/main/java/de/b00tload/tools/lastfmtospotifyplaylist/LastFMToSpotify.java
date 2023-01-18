@@ -49,38 +49,22 @@ public class LastFMToSpotify {
 
 
         // Start Progress Bar
-        try (ProgressBar pb = new ProgressBar("LastFM -> Spotify Playlist", 4)) {
-            for (int progress = 1; progress<=5; progress++) {
-                pb.step(); // step by 1
-                switch (progress) {
-                    case 1:
-                        pb.setExtraMessage("Authenticating with Spotify...");
-
-                        break;
-                    case 2:
-                        pb.setExtraMessage("Authenticating with LastFM...");
-                        Caller.getInstance().setUserAgent(configuration.get("requests.useragent"));
-                        logLn(User.getInfo(configuration.get("lastfm.user"), configuration.get("lastfm.apikey")).getName(), 1);
-                        break;
-                    case 3:
-                        pb.setExtraMessage("Reading from LastFM...");
-                        User.getTopTracks(configuration.get("lastfm.user"), Period.ONE_MONTH, configuration.get("lastfm.apikey"));
-                        break;
-                    case 4:
-                        pb.setExtraMessage("Creating Playlist...");
-                        SpotifyApi.Builder build = SpotifyApi.builder();
-                        build.setClientId(configuration.get("spotify.clientid"));
-                        build.setClientSecret(configuration.get("spotify.secret"));
-                        build.setRedirectUri(URI.create("http://localhost:9876/callback/spotify/"));
-                        SpotifyApi api = build.build();
-                        api.setAccessToken(configuration.get("spotify.access"));
-                        api.createPlaylist(api.getCurrentUsersProfile().build().execute().getId(), configuration.get("playlist.name")).setHeader("User-Agent", configuration.get("requests.useragent"));
-                        break;
-                    case 5:
-                        pb.setExtraMessage("Done.");
-                        break;
-                }
-            }
+        try {
+            logLn("Authenticating with Spotify...", 1);
+            logLn("Authenticating with LastFM...", 1);
+            Caller.getInstance().setUserAgent(configuration.get("requests.useragent"));
+            logLn(User.getInfo(configuration.get("lastfm.user"), configuration.get("lastfm.apikey")).getName(), 1);
+            logLn("Reading from LastFM...", 1);
+            User.getTopTracks(configuration.get("lastfm.user"), Period.ONE_MONTH, configuration.get("lastfm.apikey"));
+            logLn("Creating Playlist...", 1);
+            SpotifyApi.Builder build = SpotifyApi.builder();
+            build.setClientId(configuration.get("spotify.clientid"));
+            build.setClientSecret(configuration.get("spotify.secret"));
+            build.setRedirectUri(URI.create("http://localhost:9876/callback/spotify/"));
+            SpotifyApi api = build.build();
+            api.setAccessToken(configuration.get("spotify.access"));
+            api.createPlaylist(api.getCurrentUsersProfile().build().execute().getId(), configuration.get("playlist.name")).setHeader("User-Agent", configuration.get("requests.useragent"));
+            logLn("Done.", 1);
         } catch (IOException | ParseException | SpotifyWebApiException e) {
             throw new RuntimeException(e);
         }

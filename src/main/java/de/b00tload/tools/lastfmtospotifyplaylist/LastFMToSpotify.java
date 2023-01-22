@@ -11,6 +11,7 @@ import de.umass.lastfm.Track;
 import de.umass.lastfm.User;
 import io.javalin.Javalin;
 import io.javalin.http.ContentType;
+import io.javalin.http.HttpStatus;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
@@ -57,8 +58,6 @@ public class LastFMToSpotify {
             }
         }
 
-
-        // Start Progress Bar
         try {
             logLn("Authenticating with Spotify...", 1);
             SpotifyApi.Builder build = SpotifyApi.builder();
@@ -68,12 +67,13 @@ public class LastFMToSpotify {
             SpotifyApi api = build.build();
             AtomicBoolean waiting = new AtomicBoolean(true);
             try (Javalin webserver = Javalin.create().start(9876)) {
+                Runtime.getRuntime().addShutdownHook(new Thread(webserver::stop));
                 webserver.get("/callback/spotify", ctx -> {
                     if(ctx.queryParamMap().containsKey("code")) {
                         AuthorizationCodeCredentials cred = api.authorizationCode(ctx.queryParam("code")).build().execute();
                         configuration.put("spotify.access", cred.getAccessToken());
                         if(configuration.containsKey("spotify.saveaccess")) TokenHelper.saveTokens(cred);
-                        ctx.result("success. <script>window.close()</script>").contentType(ContentType.TEXT_HTML);
+                        ctx.result("success. <script>let win = window.open(null, '_self');win.close();</script>").contentType(ContentType.TEXT_HTML).status(HttpStatus.OK);
                         waiting.set(false);
                     } else {
                         logLn("Error: Spotify authorization failed."+LINE_SEPERATOR+ctx.queryParam("error"), 1);
@@ -83,9 +83,9 @@ public class LastFMToSpotify {
                 logLn("Waiting for Spotify authorization.", 1);
                 //TODO: Open auth page in Browser
                 while (waiting.get());
-                webserver.stop();
             }
             logLn("Authenticating with LastFM...", 1);
+            Caller.getInstance().setApiRootUrl("https://ws.audioscrobbler.com/2.0/");
             Caller.getInstance().setUserAgent(configuration.get("requests.useragent"));
             logLn(User.getInfo(configuration.get("lastfm.user"), configuration.get("lastfm.apikey")).getName(), 1);
             logLn("Reading from LastFM...", 1);
@@ -94,14 +94,15 @@ public class LastFMToSpotify {
             api.setAccessToken(configuration.get("spotify.access"));
             Playlist list = api.createPlaylist(api.getCurrentUsersProfile().build().execute().getId(), configuration.get("playlist.name")).public_(configuration.containsKey("playlist.public")||configuration.containsKey("playlist.collab")).collaborative(configuration.containsKey("playlist.collab")).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
             List<String> adders = new LinkedList<>();
+            String charsToReplace = "[\"']"; //regex for " and '
             for (Track track : tracks) {
                 logLn("Adding " + track.getName() + " by " + track.getArtist(), 3);
                 StringBuilder searchQuery = new StringBuilder();
-                searchQuery.append("track:").append(track.getName());
+                searchQuery.append("track:").append(track.getName().replaceAll(charsToReplace, ""));
                 searchQuery.append(" artist:").append(track.getArtist());
                 if(track.getAlbum()!=null&&!track.getAlbum().equalsIgnoreCase("null")&&!track.getAlbum().isEmpty())
                     searchQuery.append(" album:").append(track.getAlbum());
-                logLn("Search query: " + searchQuery.toString(), 3);
+                logLn("Search query: " + searchQuery, 3);
                 se.michaelthelin.spotify.model_objects.specification.Track[] add = api.searchTracks(searchQuery.toString()).market(CountryCode.DE).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute().getItems();
                 if(add.length!=0) {
                     adders.add(add[0].getUri());

@@ -22,6 +22,10 @@ public class LastFMToSpotify {
         // create hash map with user agent
         configuration = new HashMap<>();
         configuration.put("requests.useragent", "LastFMToSpotify/1.0-Snapshot (" + System.getProperty("os.name") + "; " + System.getProperty("os.arch") + ") Java/" + System.getProperty("java.version"));
+        configuration.put("log.level", "1");
+        if (!ArgumentHandler.checkArguments(args)) {
+            return;
+        }
         // parse arguments
         for (int a = 0; a < args.length; a++) {
             Arguments arg;

@@ -33,7 +33,9 @@ public enum Arguments {
     BIANNUALLY("biannually", "[Optional]" + LINE_SEPERATOR
                                         + "Creates a playlist from your top tracks from last half-year.", "--biannualy", "B"),
     YEARLY("yearly", "[Optional]" + LINE_SEPERATOR
-                                        + "Creates a playlist from your top tracks from last year.", "--anually", "A");;
+                                        + "Creates a playlist from your top tracks from last year.", "--anually", "A"),
+    COVER("coverart", "[Optional]" + LINE_SEPERATOR
+                                        + "Will set a cover art for the playlist. Must be jpeg/jpg.", "--coverart <path/to/coverart.jpg>", "ca", "cover");
 
     private final String name;
     private final String description;

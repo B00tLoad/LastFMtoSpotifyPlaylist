@@ -1,10 +1,16 @@
 package de.b00tload.tools.lastfmtospotifyplaylist.arguments;
 
+import de.b00tload.tools.lastfmtospotifyplaylist.util.FileHelper;
 import de.umass.lastfm.Period;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.LINE_SEPERATOR;
 import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.configuration;
+import static de.b00tload.tools.lastfmtospotifyplaylist.util.Logger.logLn;
 
 public class ArgumentHandler {
 
@@ -21,6 +27,7 @@ public class ArgumentHandler {
             case QUARTERLY -> period(Period.THREE_MONTHS);
             case BIANNUALLY -> period(Period.SIX_MONTHS);
             case YEARLY -> period(Period.TWELVE_MONTHS);
+            case COVER -> cover(value);
         }
     }
 
@@ -110,5 +117,14 @@ public class ArgumentHandler {
 
     private static void period(Period value) {
         configuration.put("lastfm.period", value.getString());
+    }
+
+    private static void cover(String value) {
+        if (value == null || value.equalsIgnoreCase("") || !Files.exists(Path.of(value.replace("\\", "//")))) {
+            System.out.println("--coverart must be provided with a path to a png file. Check usage: " + Arguments.COVER.getUsage());
+            System.exit(500);
+        }
+        String base64 = FileHelper.encodeFileToBase64(new File(value.replace("\\", "//")));
+        configuration.put("playlist.cover", base64);
     }
 }

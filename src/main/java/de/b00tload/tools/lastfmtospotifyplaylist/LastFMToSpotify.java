@@ -110,7 +110,9 @@ public class LastFMToSpotify {
                 }
             }
             api.addItemsToPlaylist(list.getId(), adders.toArray(String[]::new)).build().execute();
-            if(configuration.containsKey(configuration.get("playlist.cover"))) api.uploadCustomPlaylistCoverImage(list.getId()).image_data(configuration.get("playlist.cover")).build().execute();
+            if(configuration.containsKey("playlist.cover")){
+                logLn("Check for \"null\" if setting cover was successful: " + api.uploadCustomPlaylistCoverImage(list.getId()).image_data(configuration.get("playlist.cover")).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute(),3);
+            }
             logLn("Done.", 1);
 //        } catch (IOException | ParseException | SpotifyWebApiException e) {
         } catch (Exception e) {

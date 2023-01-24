@@ -41,6 +41,7 @@ public class ArgumentHandler {
             case NAME -> name(value);
             case PUBLIC -> access("public");
             case COLLABORATIVE -> access("collaborative");
+            case SPOTIFY_CACHING -> cache(value);
         }
     }
 
@@ -228,5 +229,13 @@ public class ArgumentHandler {
                 .replace("%%", "%");
 
         configuration.put("playlist.name", name);
+    }
+
+    public static void cache(String value){
+        if (value == null || value.isEmpty()) {
+            logLn("--spotifycache must be provided with a password. Check usage: " + Arguments.SPOTIFY_CACHING.getUsage(), 1);
+            System.exit(500);
+        }
+        configuration.put("cache.crypto", value);
     }
 }

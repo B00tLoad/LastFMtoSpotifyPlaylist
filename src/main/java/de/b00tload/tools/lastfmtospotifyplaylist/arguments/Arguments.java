@@ -41,7 +41,9 @@ public enum Arguments {
     PUBLIC("public", "[Optional] [EXCLUSIVE: public, collaborative]" + LINE_SEPERATOR
                                         + "Makes the playlist public.", "--public", "pP"),
     COLLABORATIVE("collaborative", "[Optional] [EXCLUSIVE: public, collaborative]" + LINE_SEPERATOR
-                                        + "Makes the playlist collaborative.", "--collaborative", "pC");
+                                        + "Makes the playlist collaborative.", "--collaborative", "pC"),
+    SPOTIFY_CACHING("spotifycache", "[Optional]" + LINE_SEPERATOR
+                                        + "Saves and (if possible) retrieves auth tokens from a locally saved file.", "--spotifycache <password>", "sTk");
 
     private final String name;
     private final String description;

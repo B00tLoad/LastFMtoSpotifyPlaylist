@@ -11,22 +11,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
-import java.time.temporal.IsoFields;
-import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
 
 import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.LINE_SEPERATOR;
 import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.configuration;
-import static de.b00tload.tools.lastfmtospotifyplaylist.util.Logger.logLn;
 
 import java.util.List;
-
-import javax.xml.crypto.Data;
-
 public class ArgumentHandler {
 
     public static void handle(Arguments argument, @Nullable String value) {

@@ -24,20 +24,24 @@ public enum Arguments {
                                         + "Sets the LastFM API token.", "--lastfmtoken <apitoken>", "lT", "lToken"),
     USER("lastfmuser", "[Required]" + LINE_SEPERATOR
                                         + "Sets the LastFM API token.", "--lastfmuser <username>", "lU", "lUser"),
-    WEEKLY("weekly", "[Optional]" + LINE_SEPERATOR
+    WEEKLY("weekly", "[Optional] [EXCLUSIVE: weekly, monthly, quarterly, biannually, annually]" + LINE_SEPERATOR
                                         + "Creates a playlist from your top tracks from last week.", "--weekly", "W"),
-    MONTHLY("monthly", "[Optional, Default]" + LINE_SEPERATOR
+    MONTHLY("monthly", "[Optional, Default] [EXCLUSIVE: weekly, monthly, quarterly, biannually, annually]" + LINE_SEPERATOR
                                         + "Creates a playlist from your top tracks from last month.", "--monthly", "M"),
-    QUARTERLY("quarterly", "[Optional]" + LINE_SEPERATOR
+    QUARTERLY("quarterly", "[Optional] [EXCLUSIVE: weekly, monthly, quarterly, biannually, annually]" + LINE_SEPERATOR
                                         + "Creates a playlist from your top tracks from last quarter.", "--quarterly", "Q"),
-    BIANNUALLY("biannually", "[Optional]" + LINE_SEPERATOR
+    BIANNUALLY("biannually", "[Optional] [EXCLUSIVE: weekly, monthly, quarterly, biannually, annually]" + LINE_SEPERATOR
                                         + "Creates a playlist from your top tracks from last half-year.", "--biannualy", "B"),
-    YEARLY("yearly", "[Optional]" + LINE_SEPERATOR
+    YEARLY("annually", "[Optional] [EXCLUSIVE: weekly, monthly, quarterly, biannually, annually]" + LINE_SEPERATOR
                                         + "Creates a playlist from your top tracks from last year.", "--anually", "A"),
     COVER("coverart", "[Optional]" + LINE_SEPERATOR
                                         + "Will set a cover art for the playlist. Must be jpeg/jpg.", "--coverart <path/to/coverart.jpg>", "ca", "cover"),
     NAME("playlistname", "[Optional]" + LINE_SEPERATOR
-                                        + "Sets the playlist name. Supports templating. Refer to https://github.com/B00tLoad/LastFMtoSpotifyPlaylist/wiki/Filename-Templating.", "--playlistname <name>", "pName", "pN");
+                                        + "Sets the playlist name. Supports templating. Refer to https://github.com/B00tLoad/LastFMtoSpotifyPlaylist/wiki/Filename-Templating.", "--playlistname <name>", "pName", "pN"),
+    PUBLIC("public", "[Optional] [EXCLUSIVE: public, collaborative]" + LINE_SEPERATOR
+                                        + "Makes the playlist public.", "--public", "pP"),
+    COLLABORATIVE("collaborative", "[Optional] [EXCLUSIVE: public, collaborative]" + LINE_SEPERATOR
+                                        + "Makes the playlist collaborative.", "--collaborative", "pC");
 
     private final String name;
     private final String description;

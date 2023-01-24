@@ -39,6 +39,8 @@ public class ArgumentHandler {
             case YEARLY -> period(Period.TWELVE_MONTHS);
             case COVER -> cover(value);
             case NAME -> name(value);
+            case PUBLIC -> access("public");
+            case COLLABORATIVE -> access("collaborative");
         }
     }
 
@@ -137,6 +139,13 @@ public class ArgumentHandler {
         }
         String base64 = FileHelper.encodeFileToBase64(new File(value.replace("\\", "//")));
         configuration.put("playlist.cover", base64);
+    }
+
+    private static void access(String value) {
+        switch (value) {
+            case "collaborative" -> configuration.put("playlist.collab", "collab");
+            case "public" -> configuration.put("playlist.public", "public");
+        }
     }
 
     private static void name(String value) {

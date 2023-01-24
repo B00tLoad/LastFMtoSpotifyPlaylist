@@ -93,7 +93,7 @@ public class LastFMToSpotify {
             Collection<Track> tracks = User.getTopTracks(configuration.get("lastfm.user"), PeriodHelper.getPeriodByString(configuration.get("lastfm.period")), configuration.get("lastfm.apikey"));
             logLn("Creating Playlist...", 1);
             api.setAccessToken(configuration.get("spotify.access"));
-            Playlist list = api.createPlaylist(api.getCurrentUsersProfile().build().execute().getId(), configuration.get("playlist.name")).public_(configuration.containsKey("playlist.public")||configuration.containsKey("playlist.collab")).collaborative(configuration.containsKey("playlist.collab")).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
+            Playlist list = api.createPlaylist(api.getCurrentUsersProfile().build().execute().getId(), configuration.get("playlist.name")).public_(configuration.containsKey("playlist.public")).collaborative(configuration.containsKey("playlist.collab")).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
             List<String> adders = new LinkedList<>();
             String charsToReplace = "[\"']"; //regex for " and '
             for (Track track : tracks) {

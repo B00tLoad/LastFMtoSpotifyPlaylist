@@ -29,6 +29,7 @@ import static de.b00tload.tools.lastfmtospotifyplaylist.util.Logger.logLn;
 public class LastFMToSpotify {
 
     public static final String LINE_SEPERATOR = System.getProperty("line.separator");
+    public static final String USER_HOME = System.getProperty("user.home");
     public static HashMap<String, String> configuration;
 
     public static void main(String[] args) {
@@ -67,7 +68,6 @@ public class LastFMToSpotify {
             }
         }
 
-
         try {
             logLn("Authenticating with Spotify...", 1);
             SpotifyApi.Builder build = SpotifyApi.builder();
@@ -76,23 +76,33 @@ public class LastFMToSpotify {
             build.setRedirectUri(URI.create("http://localhost:9876/callback/spotify/"));
             SpotifyApi api = build.build();
             AtomicBoolean waiting = new AtomicBoolean(true);
-            try (Javalin webserver = Javalin.create().start(9876)) {
-                Runtime.getRuntime().addShutdownHook(new Thread(webserver::stop));
-                webserver.get("/callback/spotify", ctx -> {
-                    if(ctx.queryParamMap().containsKey("code")) {
-                        AuthorizationCodeCredentials cred = api.authorizationCode(ctx.queryParam("code")).build().execute();
-                        configuration.put("spotify.access", cred.getAccessToken());
-                        if(configuration.containsKey("spotify.saveaccess")) TokenHelper.saveTokens(cred);
-                        ctx.result("success. <script>let win = window.open(null, '_self');win.close();</script>").contentType(ContentType.TEXT_HTML).status(HttpStatus.OK);
-                        waiting.set(false);
-                    } else {
-                        logLn("Error: Spotify authorization failed."+LINE_SEPERATOR+ctx.queryParam("error"), 1);
-                        System.exit(500);
-                    }
-                });
-                logLn("Waiting for Spotify authorization.", 1);
-                //TODO: Open auth page in Browser
-                while (waiting.get());
+            if (configuration.containsKey("cache.crypto") && TokenHelper.existsTokens()) {
+                AuthorizationCodeCredentials oldcred = TokenHelper.fetchTokens();
+                AuthorizationCodeCredentials newcred = api.authorizationCodeRefresh(api.getClientId(), api.getClientSecret(), oldcred.getRefreshToken()).build().execute();
+                TokenHelper.saveTokens(newcred);
+                configuration.put("spotify.access", newcred.getAccessToken());
+            } else {
+                try (Javalin webserver = Javalin.create().start(9876)) {
+                    Runtime.getRuntime().addShutdownHook(new Thread(webserver::stop));
+//                    webserver.exception(Exception.class, (exception, ctx) -> {
+//                        ctx.result(exception.getMessage());
+//                    });
+                    webserver.get("/callback/spotify", ctx -> {
+                        if(ctx.queryParamMap().containsKey("code")) {
+                            AuthorizationCodeCredentials cred = api.authorizationCode(ctx.queryParam("code")).build().execute();
+                            configuration.put("spotify.access", cred.getAccessToken());
+                            if(configuration.containsKey("cache.crypto")) TokenHelper.saveTokens(cred);
+                            ctx.result("success. <script>let win = window.open(null, '_self');win.close();</script>").contentType(ContentType.TEXT_HTML).status(HttpStatus.OK);
+                            waiting.set(false);
+                        } else {
+                            logLn("Error: Spotify authorization failed."+LINE_SEPERATOR+ctx.queryParam("error"), 1);
+                            System.exit(500);
+                        }
+                    });
+                    logLn("Waiting for Spotify authorization.", 1);
+                    //TODO: Open auth page in Browser
+                    while (waiting.get());
+                }
             }
             logLn("Authenticating with LastFM...", 1);
             Caller.getInstance().setApiRootUrl("https://ws.audioscrobbler.com/2.0/");

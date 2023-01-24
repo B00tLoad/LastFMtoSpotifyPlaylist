@@ -6,7 +6,6 @@ import de.b00tload.tools.lastfmtospotifyplaylist.arguments.ArgumentHandler;
 import de.b00tload.tools.lastfmtospotifyplaylist.arguments.Arguments;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.PeriodHelper;
 
-import de.b00tload.tools.lastfmtospotifyplaylist.util.TimeHelper;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.TokenHelper;
 import de.umass.lastfm.Caller;
 import de.umass.lastfm.Track;

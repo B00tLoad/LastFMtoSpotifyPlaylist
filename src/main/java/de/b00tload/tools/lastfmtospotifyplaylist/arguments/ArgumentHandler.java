@@ -11,11 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
-import java.time.temporal.IsoFields;
-import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
 
@@ -24,9 +21,6 @@ import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.configur
 import static de.b00tload.tools.lastfmtospotifyplaylist.util.Logger.logLn;
 
 import java.util.List;
-
-import javax.xml.crypto.Data;
-
 public class ArgumentHandler {
 
     public static void handle(Arguments argument, @Nullable String value) {
@@ -76,80 +70,80 @@ public class ArgumentHandler {
     }
 
     private static void help(String value) {
-        if (value == null) {
-            System.out.println("This is a list of all available commands. For more specific help on the argument run --help <argument>.");
+        if (value == null || value.isEmpty()) {
+            logLn("This is a list of all available commands. For more specific help on the argument run --help <argument>.", 1);
             for (Arguments arg : Arguments.values()) {
                 String name = arg.getName();
                 String description = arg.getDescription();
-                System.out.println("____________________");
-                System.out.println(name);
-                System.out.println("    DESCRIPTION" + LINE_SEPERATOR + description);
+                logLn("____________________", 1);
+                logLn(name, 1);
+                logLn("    DESCRIPTION" + LINE_SEPERATOR + description, 1);
             }
             System.exit(200);
         }
         Arguments arg = Arguments.resolveByNameOrAlias(value);
         if (arg == null) {
-            System.out.println("This argument is unknown. Use --help to get a list of all arguments");
+            logLn("This argument is unknown. Use --help to get a list of all arguments", 1);
             System.exit(200);
         }
         String name = arg.getName();
         String description = arg.getDescription();
         String[] aliases = arg.getAliases();
         String usage = arg.getUsage();
-        System.out.println(name);
-        System.out.println("    DESCRIPTION" + LINE_SEPERATOR + description);
-        System.out.println("    USAGE: " + usage);
+        logLn(name ,1);
+        logLn("    DESCRIPTION" + LINE_SEPERATOR + description, 1);
+        logLn("    USAGE: " + usage, 1);
         StringBuilder aliasString = new StringBuilder();
         for (String alias : aliases) {
             aliasString.append(", -").append(alias);
         }
-        System.out.println("    ALIASES:" + aliasString.substring(1));
-        System.out.println("____________________");
+        logLn("    ALIASES:" + aliasString.substring(1), 1);
+        logLn("____________________", 1);
         System.exit(200);
     }
 
     private static void verbose(String value) {
-        if (value == null) {
-            System.out.println("--loglevel must be provided with a numeric log level. Check usage: " + Arguments.VERBOSE.getUsage());
+        if (value == null || value.isEmpty()) {
+            logLn("--loglevel must be provided with a numeric log level. Check usage: " + Arguments.VERBOSE.getUsage(), 1);
             System.exit(500);
         }
         try {
             int loglevel = Integer.parseInt(value);
             configuration.put("logging.level", String.valueOf(loglevel));
         } catch (NumberFormatException e) {
-            System.out.println("LogLevel must be a numeric value.");
+            logLn("LogLevel must be a numeric value.", 1);
             System.exit(500);
         }
 
     }
 
     private static void token(String value) {
-        if (value == null || value.equalsIgnoreCase("")) {
-            System.out.println("--lastfmtoken must be provided with an api token from LastFM. Check usage: " + Arguments.TOKEN.getUsage());
+        if (value == null || value.isEmpty()) {
+            logLn("--lastfmtoken must be provided with an api token from LastFM. Check usage: " + Arguments.TOKEN.getUsage(), 1);
             System.exit(500);
         }
         configuration.put("lastfm.apikey", value);
     }
 
     private static void user(String value) {
-        if (value == null || value.equalsIgnoreCase("")) {
-            System.out.println("--lastfmuser must be provided with a LastFM username. Check usage: " + Arguments.USER.getUsage());
+        if (value == null || value.isEmpty()) {
+            logLn("--lastfmuser must be provided with a LastFM username. Check usage: " + Arguments.USER.getUsage(), 1);
             System.exit(500);
         }
         configuration.put("lastfm.user", value);
     }
 
     private static void client(String value) {
-        if (value == null || value.equalsIgnoreCase("")) {
-            System.out.println("--spotifyclient must be provided with a client id from Spotify. Check usage: " + Arguments.CLIENT.getUsage());
+        if (value == null || value.isEmpty()) {
+            logLn("--spotifyclient must be provided with a client id from Spotify. Check usage: " + Arguments.CLIENT.getUsage(), 1);
             System.exit(500);
         }
         configuration.put("spotify.clientid", value);
     }
 
     private static void secret(String value) {
-        if (value == null || value.equalsIgnoreCase("")) {
-            System.out.println("--spotifysecret must be provided with a client secret from Spotify. Check usage: " + Arguments.SECRET.getUsage());
+        if (value == null || value.isEmpty()) {
+            logLn("--spotifysecret must be provided with a client secret from Spotify. Check usage: " + Arguments.SECRET.getUsage(), 1);
             System.exit(500);
         }
         configuration.put("spotify.secret", value);
@@ -161,8 +155,8 @@ public class ArgumentHandler {
     }
 
     private static void cover(String value) {
-        if (value == null || value.equalsIgnoreCase("") || !Files.exists(Path.of(value.replace("\\", "//")))) {
-            System.out.println("--coverart must be provided with a path to a png file. Check usage: " + Arguments.COVER.getUsage());
+        if (value == null || value.isEmpty() || !Files.exists(Path.of(value.replace("\\", "//")))) {
+            logLn("--coverart must be provided with a path to a png file. Check usage: " + Arguments.COVER.getUsage(), 1);
             System.exit(500);
         }
         String base64 = FileHelper.encodeFileToBase64(new File(value.replace("\\", "//")));
@@ -177,8 +171,8 @@ public class ArgumentHandler {
     }
 
     private static void name(String value) {
-        if (value == null || value.equalsIgnoreCase("")) {
-            System.out.println("--playlistname must be provided with a playlist name. Check usage: " + Arguments.NAME.getUsage());
+        if (value == null || value.isEmpty()) {
+            logLn("--playlistname must be provided with a playlist name. Check usage: " + Arguments.NAME.getUsage(), 1);
             System.exit(500);
         }
         LocalDateTime now = LocalDateTime.now(Clock.systemDefaultZone());

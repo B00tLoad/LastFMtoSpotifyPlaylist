@@ -5,6 +5,7 @@ import com.neovisionaries.i18n.CountryCode;
 import de.b00tload.tools.lastfmtospotifyplaylist.arguments.ArgumentHandler;
 import de.b00tload.tools.lastfmtospotifyplaylist.arguments.Arguments;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.PeriodHelper;
+
 import de.b00tload.tools.lastfmtospotifyplaylist.util.TimeHelper;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.TokenHelper;
 import de.umass.lastfm.Caller;
@@ -36,6 +37,11 @@ public class LastFMToSpotify {
         configuration = new HashMap<>();
         configuration.put("requests.useragent", "LastFMToSpotify/1.0-Snapshot (" + System.getProperty("os.name") + "; " + System.getProperty("os.arch") + ") Java/" + System.getProperty("java.version"));
         configuration.put("playlist.name", "LastFMToSpotify@" + LocalDateTime.now(Clock.systemDefaultZone()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        configuration.put("log.level", "1");
+        if (!ArgumentHandler.checkArguments(args)) {
+            return;
+        }
+        
         // parse arguments
         for (int a = 0; a < args.length; a++) {
             Arguments arg;
@@ -58,6 +64,7 @@ public class LastFMToSpotify {
                 ArgumentHandler.handle(arg, args[a + 1]);
             }
         }
+
 
         try {
             logLn("Authenticating with Spotify...", 1);

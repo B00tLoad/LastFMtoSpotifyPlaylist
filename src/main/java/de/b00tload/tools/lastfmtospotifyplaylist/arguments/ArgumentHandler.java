@@ -2,6 +2,7 @@ package de.b00tload.tools.lastfmtospotifyplaylist.arguments;
 
 import de.b00tload.tools.lastfmtospotifyplaylist.util.FileHelper;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.TimeHelper;
+
 import de.umass.lastfm.Period;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,6 +22,10 @@ import java.util.Locale;
 import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.LINE_SEPERATOR;
 import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.configuration;
 import static de.b00tload.tools.lastfmtospotifyplaylist.util.Logger.logLn;
+
+import java.util.List;
+
+import javax.xml.crypto.Data;
 
 public class ArgumentHandler {
 
@@ -46,6 +51,28 @@ public class ArgumentHandler {
 
     public static void handle(Arguments argument) {
         handle(argument, null);
+    }
+
+
+    public static boolean checkArguments(String[] args) {
+        // check if all required arguments are given
+        Arguments[] required = {Arguments.SECRET, Arguments.CLIENT, Arguments.TOKEN, Arguments.USER};
+        for (Arguments argument : required) {
+            boolean found = false;
+            // check all aliases
+            for (String alias : argument.getAliases()) {
+                // if one alias is found check next argument
+                if (List.of(args).contains(alias)) {
+                    found = true;
+                    break;
+                }
+            }
+            // else return false
+            if (!found) {
+                return false;
+            }
+        } 
+        return true;
     }
 
     private static void help(String value) {
@@ -130,6 +157,7 @@ public class ArgumentHandler {
 
     private static void period(Period value) {
         configuration.put("lastfm.period", value.getString());
+
     }
 
     private static void cover(String value) {

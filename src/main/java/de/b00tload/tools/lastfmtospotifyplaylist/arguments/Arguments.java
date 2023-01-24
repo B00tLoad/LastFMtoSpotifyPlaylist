@@ -35,7 +35,9 @@ public enum Arguments {
     YEARLY("yearly", "[Optional]" + LINE_SEPERATOR
                                         + "Creates a playlist from your top tracks from last year.", "--anually", "A"),
     COVER("coverart", "[Optional]" + LINE_SEPERATOR
-                                        + "Will set a cover art for the playlist. Must be jpeg/jpg.", "--coverart <path/to/coverart.jpg>", "ca", "cover");
+                                        + "Will set a cover art for the playlist. Must be jpeg/jpg.", "--coverart <path/to/coverart.jpg>", "ca", "cover"),
+    NAME("playlistname", "[Optional]" + LINE_SEPERATOR
+                                        + "Sets the playlist name. Supports templating. Refer to https://github.com/B00tLoad/LastFMtoSpotifyPlaylist/wiki/Filename-Templating.", "--playlistname <name>", "pName", "pN");
 
     private final String name;
     private final String description;

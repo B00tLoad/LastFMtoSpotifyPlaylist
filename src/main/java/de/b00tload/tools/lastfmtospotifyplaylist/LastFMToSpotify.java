@@ -5,6 +5,7 @@ import com.neovisionaries.i18n.CountryCode;
 import de.b00tload.tools.lastfmtospotifyplaylist.arguments.ArgumentHandler;
 import de.b00tload.tools.lastfmtospotifyplaylist.arguments.Arguments;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.PeriodHelper;
+import de.b00tload.tools.lastfmtospotifyplaylist.util.TimeHelper;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.TokenHelper;
 import de.umass.lastfm.Caller;
 import de.umass.lastfm.Track;
@@ -31,7 +32,7 @@ public class LastFMToSpotify {
     public static HashMap<String, String> configuration;
 
     public static void main(String[] args) {
-        // create hash map with user agent
+        // create hash map with user agent and default playlist name
         configuration = new HashMap<>();
         configuration.put("requests.useragent", "LastFMToSpotify/1.0-Snapshot (" + System.getProperty("os.name") + "; " + System.getProperty("os.arch") + ") Java/" + System.getProperty("java.version"));
         configuration.put("playlist.name", "LastFMToSpotify@" + LocalDateTime.now(Clock.systemDefaultZone()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -105,8 +106,15 @@ public class LastFMToSpotify {
                 logLn("Search query: " + searchQuery, 3);
                 se.michaelthelin.spotify.model_objects.specification.Track[] add = api.searchTracks(searchQuery.toString()).market(CountryCode.DE).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute().getItems();
                 if(add.length!=0) {
-                    adders.add(add[0].getUri());
-                    logLn("Added " + add[0].getName() + " to " + configuration.get("playlist.name"), 3);
+//                    adders.add(add[0].getUri());
+//                    logLn("Added " + add[0].getName() + " to " + configuration.get("playlist.name"), 3);
+                    for(se.michaelthelin.spotify.model_objects.specification.Track t : add){
+                        if(t.getName().equalsIgnoreCase(track.getName())){
+                            adders.add(t.getUri());
+                            logLn("Added " + add[0].getName() + " to " + configuration.get("playlist.name"), 3);
+                            break;
+                        }
+                    }
                 }
             }
             api.addItemsToPlaylist(list.getId(), adders.toArray(String[]::new)).build().execute();

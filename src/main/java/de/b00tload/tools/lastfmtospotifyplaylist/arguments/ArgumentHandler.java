@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.WeekFields;
+import java.util.Arrays;
 import java.util.Locale;
 
 import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.LINE_SEPERATOR;
@@ -52,20 +53,40 @@ public class ArgumentHandler {
         // check if all required arguments are given
         Arguments[] required = {Arguments.SECRET, Arguments.CLIENT, Arguments.TOKEN, Arguments.USER};
         for (Arguments argument : required) {
-            boolean found = false;
+            boolean found = List.of(args).contains("--" + argument.getName());
             // check all aliases
             for (String alias : argument.getAliases()) {
                 // if one alias is found check next argument
-                if (List.of(args).contains(alias)) {
+                if (List.of(args).contains("-"+alias)) {
                     found = true;
                     break;
                 }
             }
             // else return false
             if (!found) {
+                logLn("Missing required argument " + argument.getName(), 1);
                 return false;
             }
-        } 
+        }
+        return true;
+    }
+
+    public static boolean checkExclusivity(String[] args){
+        Arguments[][] exclusive = {{Arguments.PUBLIC, Arguments.COLLABORATIVE}, {Arguments.WEEKLY, Arguments.MONTHLY, Arguments.QUARTERLY, Arguments.BIANNUALLY, Arguments.YEARLY}};
+        for(Arguments[] arguments : exclusive){
+            int count = 0;
+            for(Arguments argument : arguments){
+                if(List.of(args).contains("--"+argument.getName())) count++;
+                for(String alias : argument.getAliases()) {
+                    if(List.of(args).contains("-"+alias)) count++;
+                }
+                if(count>1){
+                    logLn("You may only use one flag out of every exclusive group." + LINE_SEPERATOR +
+                            "This exclusive group contains of: " + Arrays.toString(arguments), 1);
+                    return false;
+                }
+            }
+        }
         return true;
     }
 

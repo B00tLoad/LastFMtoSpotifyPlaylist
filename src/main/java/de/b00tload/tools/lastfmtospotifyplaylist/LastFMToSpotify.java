@@ -36,8 +36,11 @@ public class LastFMToSpotify {
         configuration = new HashMap<>();
         configuration.put("requests.useragent", "LastFMToSpotify/1.0-Snapshot (" + System.getProperty("os.name") + "; " + System.getProperty("os.arch") + ") Java/" + System.getProperty("java.version"));
         configuration.put("playlist.name", "LastFMToSpotify@" + LocalDateTime.now(Clock.systemDefaultZone()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        configuration.put("log.level", "1");
+        configuration.put("logging.level", "1");
         if (!ArgumentHandler.checkArguments(args)) {
+            return;
+        }
+        if(!ArgumentHandler.checkExclusivity(args)){
             return;
         }
         
@@ -111,15 +114,11 @@ public class LastFMToSpotify {
                     searchQuery.append(" album:").append(track.getAlbum());
                 logLn("Search query: " + searchQuery, 3);
                 se.michaelthelin.spotify.model_objects.specification.Track[] add = api.searchTracks(searchQuery.toString()).market(CountryCode.DE).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute().getItems();
-                if(add.length!=0) {
-//                    adders.add(add[0].getUri());
-//                    logLn("Added " + add[0].getName() + " to " + configuration.get("playlist.name"), 3);
-                    for(se.michaelthelin.spotify.model_objects.specification.Track t : add){
-                        if(t.getName().equalsIgnoreCase(track.getName())){
-                            adders.add(t.getUri());
-                            logLn("Added " + add[0].getName() + " to " + configuration.get("playlist.name"), 3);
-                            break;
-                        }
+                for(se.michaelthelin.spotify.model_objects.specification.Track t : add){
+                    if(t.getName().equalsIgnoreCase(track.getName())){
+                        adders.add(t.getUri());
+                        logLn("Added " + add[0].getName() + " to " + configuration.get("playlist.name"), 3);
+                        break;
                     }
                 }
             }

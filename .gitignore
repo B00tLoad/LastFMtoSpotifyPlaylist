@@ -2,4 +2,4 @@
 /target/
 .idea/
 compile.bat
-.vscode/
+/.vscode/

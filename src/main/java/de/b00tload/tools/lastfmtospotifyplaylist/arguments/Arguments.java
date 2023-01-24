@@ -91,4 +91,15 @@ public enum Arguments {
         ret = getByAlias(v);
         return ret;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder args = new StringBuilder("--").append(this.name).append(" (");
+        for(String alias : this.getAliases()){
+            args.append("-").append(alias).append(", ");
+        }
+        args.delete(args.length()-2, args.length());
+        args.append(")");
+        return args.toString();
+    }
 }

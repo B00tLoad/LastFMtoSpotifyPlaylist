@@ -1,10 +1,27 @@
 package de.b00tload.tools.lastfmtospotifyplaylist.arguments;
 
+import de.b00tload.tools.lastfmtospotifyplaylist.util.FileHelper;
+import de.b00tload.tools.lastfmtospotifyplaylist.util.TimeHelper;
+
 import de.umass.lastfm.Period;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoField;
+import java.time.temporal.IsoFields;
+import java.time.temporal.TemporalField;
+import java.time.temporal.WeekFields;
+import java.util.Locale;
+
 import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.LINE_SEPERATOR;
 import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.configuration;
+import static de.b00tload.tools.lastfmtospotifyplaylist.util.Logger.logLn;
 
 import java.util.List;
 
@@ -25,12 +42,17 @@ public class ArgumentHandler {
             case QUARTERLY -> period(Period.THREE_MONTHS);
             case BIANNUALLY -> period(Period.SIX_MONTHS);
             case YEARLY -> period(Period.TWELVE_MONTHS);
+            case COVER -> cover(value);
+            case NAME -> name(value);
+            case PUBLIC -> access("public");
+            case COLLABORATIVE -> access("collaborative");
         }
     }
 
     public static void handle(Arguments argument) {
         handle(argument, null);
     }
+
 
     public static boolean checkArguments(String[] args) {
         // check if all required arguments are given
@@ -135,5 +157,61 @@ public class ArgumentHandler {
 
     private static void period(Period value) {
         configuration.put("lastfm.period", value.getString());
+
+    }
+
+    private static void cover(String value) {
+        if (value == null || value.equalsIgnoreCase("") || !Files.exists(Path.of(value.replace("\\", "//")))) {
+            System.out.println("--coverart must be provided with a path to a png file. Check usage: " + Arguments.COVER.getUsage());
+            System.exit(500);
+        }
+        String base64 = FileHelper.encodeFileToBase64(new File(value.replace("\\", "//")));
+        configuration.put("playlist.cover", base64);
+    }
+
+    private static void access(String value) {
+        switch (value) {
+            case "collaborative" -> configuration.put("playlist.collab", "collab");
+            case "public" -> configuration.put("playlist.public", "public");
+        }
+    }
+
+    private static void name(String value) {
+        if (value == null || value.equalsIgnoreCase("")) {
+            System.out.println("--playlistname must be provided with a playlist name. Check usage: " + Arguments.NAME.getUsage());
+            System.exit(500);
+        }
+        LocalDateTime now = LocalDateTime.now(Clock.systemDefaultZone());
+        Locale loc = Locale.forLanguageTag(System.getProperty("user.country"));
+        if(value.matches("(%\\$-?\\d*\\$).*")){
+            int offsetDays = Integer.parseInt(value.substring(2).split("\\$")[0]);
+            now = offsetDays < 0 ?  now.minusDays(Math.abs(offsetDays)) : now.plusDays(Math.abs(offsetDays));
+        }
+        String name = value.replace("%YYYY", String.valueOf(now.getYear())).replace("%YY", String.valueOf(now.getYear()).substring(2))
+                .replace("%MMMM", now.getMonth().name().charAt(0) + now.getMonth().name().toLowerCase().substring(1))
+                .replace("%MMM", now.getMonth().getDisplayName(TextStyle.FULL, loc))
+                .replace("%MM", (String.valueOf(now.getMonth().getValue()).length() == 1 ? "0" + now.getMonth().getValue() : String.valueOf(now.getMonth().getValue())))
+                .replace("%M", String.valueOf(now.getMonth().getValue()))
+                .replace("%DD", (String.valueOf(now.getDayOfMonth()).length() == 1 ? "0" + now.getDayOfMonth() : String.valueOf(now.getDayOfMonth())))
+                .replace("%D", String.valueOf(now.getDayOfMonth()))
+                .replace("%DDDD", now.getDayOfWeek().getDisplayName(TextStyle.FULL, loc))
+                .replace("%DDD", now.getDayOfWeek().getDisplayName(TextStyle.SHORT, loc))
+                .replace("%WW", (String.valueOf(now.get(WeekFields.of(loc).weekOfWeekBasedYear())).length() == 1 ? "0" + now.get(WeekFields.of(loc).weekOfWeekBasedYear()) : String.valueOf(now.get(WeekFields.of(loc).weekOfWeekBasedYear()))))
+                .replace("%W", String.valueOf(now.get(WeekFields.of(loc).weekOfWeekBasedYear())))
+                .replace("%HH", (String.valueOf(now.get(ChronoField.HOUR_OF_DAY)).length() == 1 ? "0" + now.get(ChronoField.HOUR_OF_DAY) : String.valueOf(now.get(ChronoField.HOUR_OF_DAY))))
+                .replace("%H", String.valueOf(now.get(ChronoField.HOUR_OF_DAY)))
+                .replace("%hh", (String.valueOf(now.get(ChronoField.HOUR_OF_AMPM)).length() == 1 ? "0" + now.get(ChronoField.HOUR_OF_AMPM) : String.valueOf(now.get(ChronoField.HOUR_OF_AMPM))))
+                .replace("%h", String.valueOf(now.get(ChronoField.HOUR_OF_AMPM)))
+                .replace("%P", now.get(ChronoField.AMPM_OF_DAY)==0 ? "AM" : "PM")
+                .replace("%p", now.get(ChronoField.AMPM_OF_DAY)==0 ? "am" : "pm")
+                .replace("%mm", (String.valueOf(now.getMinute()).length() == 1 ? "0" + now.getMinute() : String.valueOf(now.getMinute())))
+                .replace("%m", String.valueOf(now.getMinute()))
+                .replace("%ss", (String.valueOf(now.getSecond()).length() == 1 ? "0" + now.getSecond() : String.valueOf(now.getSecond())))
+                .replace("%s", String.valueOf(now.getSecond()))
+                .replace("%o", TimeHelper.getUTCOffset(now))
+                .replaceAll("%\\$-?\\d*\\$", "")
+                .replace("%%", "%");
+
+        configuration.put("playlist.name", name);
     }
 }

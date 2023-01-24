@@ -1,5 +1,5 @@
 # Project exclude paths
 /target/
-/compile.bat
 .idea/
 compile.bat
+.vscode/

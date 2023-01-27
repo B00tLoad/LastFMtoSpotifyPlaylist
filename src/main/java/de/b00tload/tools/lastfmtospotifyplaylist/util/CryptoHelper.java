@@ -15,18 +15,28 @@ import java.security.spec.KeySpec;
 
 public class CryptoHelper {
 
+    /**
+     * Creates a <code>javax.crypto.SecretKey</code> from a provided password
+     * @param pass The password
+     * @return the generated secret key
+     */
     public static SecretKey createKeyFromPassword(String pass){
         try {
             KeySpec spec = new PBEKeySpec(pass.toCharArray(), "abcdefghijklmnop".getBytes(), 65536, 256); // AES-256
             SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            byte[] key = new byte[0];
-            key = f.generateSecret(spec).getEncoded();
+            byte[] key = f.generateSecret(spec).getEncoded();
             return new SecretKeySpec(key, "AES");
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Saves a <code>java.io.Serializable</code> Object into an encrypted file
+     * @param obj The object to save
+     * @param file The Path where to save the file
+     * @param key The SecretKey (AES) to encrypt the file with
+     */
     public static void serializeEncrypted(Serializable obj, Path file, SecretKey key){
         try {
             if(file.toFile().exists()) file.toFile().delete();
@@ -45,8 +55,14 @@ public class CryptoHelper {
         }
     }
 
+    /**
+     * Reads an encrypted file into a <code>java.io.Serializable</code> object.
+     * @param file The <code>java.nio.Path</code> where the encrypted file is stored.
+     * @param key The SecretKey (AES) to decrypt the file with
+     * @return The <code>java.io.Serializable</code> object read from the file.
+     */
     public static Serializable deserializeEncrypted(Path file, SecretKey key) {
-        Serializable ret = null;
+        Serializable ret;
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             IvParameterSpec iv = new IvParameterSpec("abcdefghijklmnop".getBytes());

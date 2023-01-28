@@ -7,6 +7,7 @@ import de.b00tload.tools.lastfmtospotifyplaylist.arguments.Arguments;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.BrowserHelper;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.PeriodHelper;
 
+import de.b00tload.tools.lastfmtospotifyplaylist.util.SpotifyCredentials;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.TokenHelper;
 import de.umass.lastfm.Caller;
 import de.umass.lastfm.Track;
@@ -15,7 +16,6 @@ import io.javalin.Javalin;
 import io.javalin.http.ContentType;
 import io.javalin.http.HttpStatus;
 import se.michaelthelin.spotify.SpotifyApi;
-import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
 
 import java.net.URI;
@@ -83,11 +83,16 @@ public class LastFMToSpotify {
             AtomicBoolean waiting = new AtomicBoolean(true);
             if (configuration.containsKey("cache.crypto") && TokenHelper.existsTokens()) {
                 logLn("Cached credentials have been found.", 2);
-                logLn("Fetching old credentials, refreshing them and saving to cache", 2);
-                AuthorizationCodeCredentials oldcred = TokenHelper.fetchTokens();
-                AuthorizationCodeCredentials newcred = api.authorizationCodeRefresh(api.getClientId(), api.getClientSecret(), oldcred.getRefreshToken()).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
-                TokenHelper.saveTokens(newcred);
-                configuration.put("spotify.access", newcred.getAccessToken());
+                logLn("Fetching credentials from cache.", 2);
+                SpotifyCredentials cred = TokenHelper.fetchTokens();
+                api.setRefreshToken(cred.getRefreshToken());
+
+                if(!cred.isValid()){
+                    logLn("Cached credentials are invalid due to age. Refreshing and saving to cache", 2);
+                    cred.refreshCredentials(api.authorizationCodeRefresh().build().execute());
+                    TokenHelper.saveTokens(cred);
+                }
+                configuration.put("spotify.access", cred.getAccessToken());
             } else {
                 try (Javalin webserver = Javalin.create().start(9876)) {
                     if (configuration.containsKey("cache.crypto")) logLn("No cached credentials have been found.", 2);
@@ -99,7 +104,7 @@ public class LastFMToSpotify {
                     webserver.get("/callback/spotify", ctx -> {
                         if(ctx.queryParamMap().containsKey("code")) {
                             logLn("Received spotify authentication code. Requesting credentials.", 2);
-                            AuthorizationCodeCredentials cred = api.authorizationCode(ctx.queryParam("code")).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
+                            SpotifyCredentials cred = new SpotifyCredentials(api.authorizationCode(ctx.queryParam("code")).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute());
                             configuration.put("spotify.access", cred.getAccessToken());
                             if(configuration.containsKey("cache.crypto")) {
                                 logLn("Saving credentials to cache.", 2);

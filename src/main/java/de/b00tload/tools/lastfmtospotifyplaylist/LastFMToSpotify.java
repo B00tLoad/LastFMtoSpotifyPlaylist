@@ -4,17 +4,17 @@ package de.b00tload.tools.lastfmtospotifyplaylist;
 import com.neovisionaries.i18n.CountryCode;
 import de.b00tload.tools.lastfmtospotifyplaylist.arguments.ArgumentHandler;
 import de.b00tload.tools.lastfmtospotifyplaylist.arguments.Arguments;
-import de.b00tload.tools.lastfmtospotifyplaylist.util.BrowserHelper;
-import de.b00tload.tools.lastfmtospotifyplaylist.util.PeriodHelper;
+import de.b00tload.tools.lastfmtospotifyplaylist.util.*;
 
-import de.b00tload.tools.lastfmtospotifyplaylist.util.SpotifyCredentials;
-import de.b00tload.tools.lastfmtospotifyplaylist.util.TokenHelper;
 import de.umass.lastfm.Caller;
 import de.umass.lastfm.Track;
 import de.umass.lastfm.User;
 import io.javalin.Javalin;
 import io.javalin.http.ContentType;
 import io.javalin.http.HttpStatus;
+import io.javalin.jetty.JettyUtil;
+import io.javalin.util.JavalinLogger;
+import org.slf4j.LoggerFactory;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
 
@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 import static de.b00tload.tools.lastfmtospotifyplaylist.util.Logger.logLn;
 
@@ -71,6 +72,11 @@ public class LastFMToSpotify {
             } else {
                 ArgumentHandler.handle(arg, args[a + 1]);
             }
+        }
+
+        if(Integer.parseInt(configuration.get("logging.level")) != 3){
+            JavalinLogger.enabled = false;
+            System.setErr(new Logger.LogStream(System.err));
         }
 
         try {
@@ -130,6 +136,7 @@ public class LastFMToSpotify {
             logLn("Authenticating with LastFM...", 1);
             Caller.getInstance().setApiRootUrl("https://ws.audioscrobbler.com/2.0/");
             Caller.getInstance().setUserAgent(configuration.get("requests.useragent"));
+            if(Integer.parseInt(configuration.get("logging.level")) != 3) Caller.getInstance().getLogger().setLevel(Level.OFF);
             logLn(User.getInfo(configuration.get("lastfm.user"), configuration.get("lastfm.apikey")).getName(), 1);
             logLn("Reading from LastFM...", 1);
             Collection<Track> tracks = User.getTopTracks(configuration.get("lastfm.user"), PeriodHelper.getPeriodByString(configuration.get("lastfm.period")), configuration.get("lastfm.apikey"));

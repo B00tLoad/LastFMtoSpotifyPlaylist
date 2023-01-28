@@ -6,7 +6,53 @@
 
     <groupId>de.b00tload.tools</groupId>
     <artifactId>LastfmToSpotifyPlaylist</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
+
+    <name>LastFM2SpotifyPlaylist</name>
+    <description>Creates a Spotify playlist from LastFM scrobble data.</description>
+    <inceptionYear>2023</inceptionYear>
+    <url>https://github.com/B00tLoad/LastFMtoSpotifyPlaylist</url>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License v3.0</name>
+            <url>https://github.com/B00tLoad/LastFMtoSpotifyPlaylist/blob/master/LICENSE</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>B00tLoad_</id>
+            <name>Alix von Schirp</name>
+            <email>alix.von-schirp@bootmedia.de</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/Berlin</timezone>
+            <properties>
+                <disordHandle>Alix | B00tLoad_#9370</disordHandle>
+                <pronouns>she/they</pronouns>
+            </properties>
+        </developer>
+        <developer>
+            <id>Morril</id>
+            <name>Quinn Gasch</name>
+            <email>hello@morril.de</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/Berlin</timezone>
+            <properties>
+                <discordHandle>Morril#2300</discordHandle>
+                <pronouns>they/any</pronouns>
+            </properties>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/B00tLoad/LastFMtoSpotifyPlaylist/issues</url>
+    </issueManagement>
 
     <properties>
         <maven.compiler.source>18</maven.compiler.source>

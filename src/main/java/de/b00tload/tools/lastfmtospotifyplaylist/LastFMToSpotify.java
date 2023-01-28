@@ -38,9 +38,13 @@ public class LastFMToSpotify {
         configuration.put("requests.useragent", "LastFMToSpotify/1.0-Snapshot (" + System.getProperty("os.name") + "; " + System.getProperty("os.arch") + ") Java/" + System.getProperty("java.version"));
         configuration.put("playlist.name", "LastFMToSpotify@" + LocalDateTime.now(Clock.systemDefaultZone()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         configuration.put("logging.level", "1");
+
+        //check whether all required arguments are set
         if (!ArgumentHandler.checkArguments(args)) {
             return;
         }
+
+        //check whether multiple arguments from an exclusive set are used
         if(!ArgumentHandler.checkExclusivity(args)){
             return;
         }
@@ -77,21 +81,29 @@ public class LastFMToSpotify {
             SpotifyApi api = build.build();
             AtomicBoolean waiting = new AtomicBoolean(true);
             if (configuration.containsKey("cache.crypto") && TokenHelper.existsTokens()) {
+                logLn("Cached credentials have been found.", 2);
+                logLn("Fetching old credentials, refreshing them and saving to cache", 2);
                 AuthorizationCodeCredentials oldcred = TokenHelper.fetchTokens();
-                AuthorizationCodeCredentials newcred = api.authorizationCodeRefresh(api.getClientId(), api.getClientSecret(), oldcred.getRefreshToken()).build().execute();
+                AuthorizationCodeCredentials newcred = api.authorizationCodeRefresh(api.getClientId(), api.getClientSecret(), oldcred.getRefreshToken()).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
                 TokenHelper.saveTokens(newcred);
                 configuration.put("spotify.access", newcred.getAccessToken());
             } else {
                 try (Javalin webserver = Javalin.create().start(9876)) {
+                    if (configuration.containsKey("cache.crypto")) logLn("No cached credentials have been found.", 2);
+                    logLn("Starting webserver to initiate web based authentication.", 2);
                     Runtime.getRuntime().addShutdownHook(new Thread(webserver::stop));
 //                    webserver.exception(Exception.class, (exception, ctx) -> {
 //                        ctx.result(exception.getMessage());
 //                    });
                     webserver.get("/callback/spotify", ctx -> {
                         if(ctx.queryParamMap().containsKey("code")) {
-                            AuthorizationCodeCredentials cred = api.authorizationCode(ctx.queryParam("code")).build().execute();
+                            logLn("Received spotify authentication code. Requesting credentials.", 2);
+                            AuthorizationCodeCredentials cred = api.authorizationCode(ctx.queryParam("code")).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
                             configuration.put("spotify.access", cred.getAccessToken());
-                            if(configuration.containsKey("cache.crypto")) TokenHelper.saveTokens(cred);
+                            if(configuration.containsKey("cache.crypto")) {
+                                logLn("Saving credentials to cache.", 2);
+                                TokenHelper.saveTokens(cred);
+                            }
                             ctx.result("success. <script>let win = window.open(null, '_self');win.close();</script>").contentType(ContentType.TEXT_HTML).status(HttpStatus.OK);
                             waiting.set(false);
                         } else {
@@ -111,12 +123,14 @@ public class LastFMToSpotify {
             logLn("Reading from LastFM...", 1);
             Collection<Track> tracks = User.getTopTracks(configuration.get("lastfm.user"), PeriodHelper.getPeriodByString(configuration.get("lastfm.period")), configuration.get("lastfm.apikey"));
             logLn("Creating Playlist...", 1);
+            logLn("... with custom playlistname (if set) and access modifiers (if set).", 2);
             api.setAccessToken(configuration.get("spotify.access"));
             Playlist list = api.createPlaylist(api.getCurrentUsersProfile().build().execute().getId(), configuration.get("playlist.name")).public_(configuration.containsKey("playlist.public")).collaborative(configuration.containsKey("playlist.collab")).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
             List<String> adders = new LinkedList<>();
-            String charsToReplace = "[\"']"; //regex for " and '
+            String charsToReplace = "[\"']"; //regex removing " and ' because of issues with spotify search
+            logLn("Searching tracks from LastFM data on Spotify.", 2);
             for (Track track : tracks) {
-                logLn("Adding " + track.getName() + " by " + track.getArtist(), 3);
+                logLn("Searching " + track.getName() + " by " + track.getArtist(), 3);
                 StringBuilder searchQuery = new StringBuilder();
                 searchQuery.append("track:").append(track.getName().replaceAll(charsToReplace, ""));
                 searchQuery.append(" artist:").append(track.getArtist());
@@ -132,8 +146,10 @@ public class LastFMToSpotify {
                     }
                 }
             }
-            api.addItemsToPlaylist(list.getId(), adders.toArray(String[]::new)).build().execute();
+            logLn("Adding tracks to playlist.", 2);
+            api.addItemsToPlaylist(list.getId(), adders.toArray(String[]::new)).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
             if(configuration.containsKey("playlist.cover")){
+                logLn("Setting playlist cover", 2);
                 logLn("Check for \"null\" if setting cover was successful: " + api.uploadCustomPlaylistCoverImage(list.getId()).image_data(configuration.get("playlist.cover")).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute(),3);
             }
             logLn("Done.", 1);

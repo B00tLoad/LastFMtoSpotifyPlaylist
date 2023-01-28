@@ -6,6 +6,7 @@ import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.LINE_SEP
 
 public enum Arguments {
 
+    //Defining arguments
     HELP("help", "[Optional, will not execute tool] " + LINE_SEPERATOR
             + "Shows a list of all commands or, if provided, help for a given command.", "--help [argument]", "h", "?"),
     VERBOSE("loglevel", "[Optional] " + LINE_SEPERATOR
@@ -73,6 +74,11 @@ public enum Arguments {
         return aliases;
     }
 
+    /**
+     * Resolves an alias-String into an Argument-object
+     * @param alias The alias to resolve
+     * @return The resolved Argument, null if alias does not exist.
+     */
     public static Arguments getByAlias(String alias){
         for(Arguments arg : values()){
             if(List.of(arg.getAliases()).contains(alias)) return arg;
@@ -80,6 +86,11 @@ public enum Arguments {
         return null;
     }
 
+    /**
+     * Resolves an argument-String into an Argument-object
+     * @param name The argument to resolve
+     * @return The resolved Argument, null if alias does not exist.
+     */
     public static Arguments getByName(String name){
         for(Arguments arg : values()){
             if(arg.getName().equalsIgnoreCase(name)) return arg;
@@ -87,6 +98,11 @@ public enum Arguments {
         return null;
     }
 
+    /**
+     * Resolves an argument- or alias-String into an Argument-object
+     * @param v The alias or argument to resolve
+     * @return The resolved Argument, null if alias does not exist.
+     */
     public static Arguments resolveByNameOrAlias(String v){
         Arguments ret = getByName(v);
         if(ret != null) return ret;
@@ -94,6 +110,10 @@ public enum Arguments {
         return ret;
     }
 
+    /**
+     * Builds a String consisting of the argument name and all aliases listed
+     * @return "--$argument ($aliases)"
+     */
     @Override
     public String toString() {
         StringBuilder args = new StringBuilder("--").append(this.name).append(" (");

@@ -8,7 +8,7 @@ import static de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify.configur
 public class TokenHelper {
 
     /**
-     * Manages saving a <codede.b00tload.tools.lastfmtospotifyplaylist.util.SpotifyCredentials</code> into "~/.lfm2s/spotify.lfm2scred" using <code>de.b00tload.tools.lastfmtospotifyplaylist.util.CryptoHelper.serializeEncrypted(...)</code>
+     * Manages saving a <code>de.b00tload.tools.lastfmtospotifyplaylist.util.SpotifyCredentials</code> into "~/.lfm2s/spotify.lfm2scred" using <code>de.b00tload.tools.lastfmtospotifyplaylist.util.CryptoHelper.serializeEncrypted(...)</code>
      * @param cred The <code>de.b00tload.tools.lastfmtospotifyplaylist.util.SpotifyCredentials</code> to be saved
      */
     public static void saveTokens(SpotifyCredentials cred) {

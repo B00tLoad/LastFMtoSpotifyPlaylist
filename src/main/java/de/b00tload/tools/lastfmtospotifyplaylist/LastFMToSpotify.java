@@ -84,7 +84,8 @@ public class LastFMToSpotify {
                 logLn("Cached credentials have been found.", 2);
                 logLn("Fetching old credentials, refreshing them and saving to cache", 2);
                 AuthorizationCodeCredentials oldcred = TokenHelper.fetchTokens();
-                AuthorizationCodeCredentials newcred = api.authorizationCodeRefresh(api.getClientId(), api.getClientSecret(), oldcred.getRefreshToken()).setHeader("User-Agent", configuration.get("requests.useragent")).build().execute();
+                api.setRefreshToken(oldcred.getRefreshToken());
+                AuthorizationCodeCredentials newcred = api.authorizationCodeRefresh().build().execute();
                 TokenHelper.saveTokens(newcred);
                 configuration.put("spotify.access", newcred.getAccessToken());
             } else {

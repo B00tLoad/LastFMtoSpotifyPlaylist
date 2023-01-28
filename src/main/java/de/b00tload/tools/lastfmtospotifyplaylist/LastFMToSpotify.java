@@ -4,6 +4,7 @@ package de.b00tload.tools.lastfmtospotifyplaylist;
 import com.neovisionaries.i18n.CountryCode;
 import de.b00tload.tools.lastfmtospotifyplaylist.arguments.ArgumentHandler;
 import de.b00tload.tools.lastfmtospotifyplaylist.arguments.Arguments;
+import de.b00tload.tools.lastfmtospotifyplaylist.util.BrowserHelper;
 import de.b00tload.tools.lastfmtospotifyplaylist.util.PeriodHelper;
 
 import de.b00tload.tools.lastfmtospotifyplaylist.util.TokenHelper;
@@ -100,7 +101,12 @@ public class LastFMToSpotify {
                         }
                     });
                     logLn("Waiting for Spotify authorization.", 1);
-                    //TODO: Open auth page in Browser
+                    
+                    String authPage = "https://accounts.spotify.com/authorize?client_id="
+                        + configuration.get("spotify.clientid")
+                        + "&response_type=code&state=73775e18-b0bc-4031-a379-bce99a0e3e6c&redirect_uri=http%3A%2F%2Flocalhost%3A9876%2Fcallback%2Fspotify%2F&scope=user-read-private%20playlist-modify-private%20playlist-modify-public%20ugc-image-upload%20playlist-read-private%20playlist-read-collaborative";
+                    BrowserHelper.openInBrowser(authPage);
+
                     while (waiting.get());
                 }
             }

@@ -19,6 +19,7 @@ The tool supports setting a custom name for the playlist, setting a cover art as
  - A Spotify application
  - A LastFM api token
  - Java 18 (as this tool is not shipped with a JRE you'll need to install the JDK)
+ - Usage on Linux requires having xdg-open installed
 
 ## Setup
 ### Spotify

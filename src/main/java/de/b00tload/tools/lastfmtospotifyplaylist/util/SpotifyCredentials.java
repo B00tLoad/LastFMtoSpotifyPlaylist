@@ -4,21 +4,24 @@ import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCrede
 import java.io.Serializable;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * A wrapper class for <code>se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials</code>. Implements checking validity of access token.
  */
 public class SpotifyCredentials implements Serializable {
 
-    private final AuthorizationCodeCredentials cred;
-    private final LocalDateTime validUntil;
+    private String accessToken;
+    private String refreshToken;
+    private LocalDateTime validUntil;
 
     /**
      * Initializes the class
      * @param cred The <code>AuthorizationCodeCredentials</code> to be saved. Recommended for use with recently (last few seconds) generated Credentials
      */
     public SpotifyCredentials(AuthorizationCodeCredentials cred){
-        this.cred = cred;
+        this.accessToken = cred.getAccessToken();
+        this.refreshToken = cred.getRefreshToken();
         this.validUntil = LocalDateTime.now(Clock.systemDefaultZone()).plusSeconds(cred.getExpiresIn());
     }
 
@@ -27,7 +30,7 @@ public class SpotifyCredentials implements Serializable {
      * @return An access token that can be provided in subsequent calls, for example to Spotify Web API services.
      */
     public String getAccessToken(){
-        return cred.getAccessToken();
+        return accessToken;
     }
 
     /**
@@ -35,7 +38,7 @@ public class SpotifyCredentials implements Serializable {
      * @return A token that can be sent to the Spotify Accounts service in place of an access token.
      */
     public String getRefreshToken(){
-        return cred.getRefreshToken();
+        return refreshToken;
     }
 
     /**
@@ -52,6 +55,16 @@ public class SpotifyCredentials implements Serializable {
      */
     public boolean isValid(){
         return LocalDateTime.now(Clock.systemDefaultZone()).isBefore(getValidUntil());
+    }
+
+    /**
+     * Refreshes the access token. If a new refresh token is provided it will be saved as well.
+     * @param cred The <code>AuthorizationCodeCredentials</code> to be saved. Recommended for use with recently (last few seconds) generated Credentials
+     */
+    public void refreshCredentials(AuthorizationCodeCredentials cred){
+        this.accessToken = cred.getAccessToken();
+        if(Objects.nonNull(cred.getRefreshToken())) this.refreshToken = cred.getRefreshToken();
+        this.validUntil = LocalDateTime.now(Clock.systemDefaultZone()).plusSeconds(cred.getExpiresIn());
     }
 
 }

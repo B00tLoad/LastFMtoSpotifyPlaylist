@@ -83,14 +83,12 @@ public class LastFMToSpotify {
             if (configuration.containsKey("cache.crypto") && TokenHelper.existsTokens()) {
                 logLn("Cached credentials have been found.", 2);
                 logLn("Fetching credentials from cache.", 2);
-                SpotifyCredentials oldcred = TokenHelper.fetchTokens();
-                api.setRefreshToken(oldcred.getRefreshToken());
-                SpotifyCredentials cred;
-                if(oldcred.isValid()){
-                    cred=oldcred;
-                } else {
+                SpotifyCredentials cred = TokenHelper.fetchTokens();
+                api.setRefreshToken(cred.getRefreshToken());
+
+                if(!cred.isValid()){
                     logLn("Cached credentials are invalid due to age. Refreshing and saving to cache", 2);
-                    cred = new SpotifyCredentials(api.authorizationCodeRefresh().build().execute());
+                    cred.refreshCredentials(api.authorizationCodeRefresh().build().execute());
                     TokenHelper.saveTokens(cred);
                 }
                 configuration.put("spotify.access", cred.getAccessToken());

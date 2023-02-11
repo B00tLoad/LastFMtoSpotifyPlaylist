@@ -12,9 +12,7 @@ import de.umass.lastfm.User;
 import io.javalin.Javalin;
 import io.javalin.http.ContentType;
 import io.javalin.http.HttpStatus;
-import io.javalin.jetty.JettyUtil;
 import io.javalin.util.JavalinLogger;
-import org.slf4j.LoggerFactory;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
 
@@ -77,6 +75,10 @@ public class LastFMToSpotify {
         if(Integer.parseInt(configuration.get("logging.level")) != 3){
             JavalinLogger.enabled = false;
             System.setErr(new Logger.LogStream(System.err));
+        }
+
+        if(Integer.parseInt(configuration.get("logging.level")) !=0){
+            VersionChecker.checkVerion();
         }
 
         try {

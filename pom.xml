@@ -6,7 +6,7 @@
 
     <groupId>de.b00tload.tools</groupId>
     <artifactId>LastfmToSpotifyPlaylist</artifactId>
-    <version>1.0</version>
+    <version>1.1-alpha</version>
 
     <name>LastFM2SpotifyPlaylist</name>
     <description>Creates a Spotify playlist from LastFM scrobble data.</description>
@@ -80,6 +80,8 @@
                     <archive>
                         <manifest>
                             <mainClass>de.b00tload.tools.lastfmtospotifyplaylist.LastFMToSpotify</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
                 </configuration>
@@ -106,6 +108,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
         </dependency>
     </dependencies>
 
